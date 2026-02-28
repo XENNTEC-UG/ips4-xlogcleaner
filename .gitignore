@@ -2,6 +2,7 @@
 .claude/
 .auto-claude/
 
-# Releases — only track plugin export tars
+# Releases — track plugin XML exports
 releases/*
 !releases/.gitkeep
+!releases/X Log Cleaner *.xml

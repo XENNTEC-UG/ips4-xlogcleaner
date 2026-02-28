@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin name="X Log Cleaner" version_long="10000" version_human="1.0.0" author="XENNTEC UG" website="https://xenntec.net" update_check="https://xenntec-ug.github.io/ips4-updates/xlogcleaner.json"><hooks><hook type="C" class="\IPS\core\modules\admin\support\systemLogs" filename="systemLogsController"><![CDATA[//<?php
+/**
+ * @brief		Hook on \IPS\core\modules\admin\support\systemLogs
+ * @author		XENNTEC UG
+ * @copyright	(c) 2026 XENNTEC UG
+ * @package		X Log Cleaner
+ * @since		1.0.0
+ */
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
+{
+	exit;
+}
+
+class hook193 extends _HOOK_CLASS_
+{
+	/**
+	 * Override manage() to inject "Delete All Logs" sidebar button
+	 *
+	 * @return	void
+	 */
+	protected function manage()
+	{
+		try
+		{
+			try
+			{
+				parent::manage();
+	
+				$hasLogs = \IPS\Db::i()->select( 'COUNT(*)', 'core_log' )->first();
+	
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs'] = array(
+					'title' => 'xlc_delete_system_logs',
+					'icon'  => 'trash',
+				);
+	
+				if ( $hasLogs )
+				{
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteSystemLogs' );
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' ) );
+				}
+				else
+				{
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['class'] = 'ipsButton_disabled';
+				}
+			}
+			catch ( \Error | \RuntimeException $e )
+			{
+				if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+				{
+					return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Override fileLogs() to inject "Delete File Logs" sidebar button
+	 *
+	 * @return	void
+	 */
+	protected function fileLogs()
+	{
+		try
+		{
+			try
+			{
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteFileLogs'] = array(
+					'title' => 'xlc_delete_file_logs',
+					'icon'  => 'trash',
+					'link'  => \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteFileLogs' ),
+					'data'  => array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' ) ),
+				);
+	
+				parent::fileLogs();
+			}
+			catch ( \Error | \RuntimeException $e )
+			{
+				if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+				{
+					return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Delete system logs — form with "delete all" toggle and category multi-select
+	 *
+	 * @return	void
+	 */
+	protected function xlcDeleteSystemLogs()
+	{
+		try
+		{
+			try
+			{
+				\IPS\Session::i()->csrfCheck();
+	
+				$form = new \IPS\Helpers\Form;
+	
+				$form->add( new \IPS\Helpers\Form\YesNo( 'xlc_delete_all_toggle', FALSE, FALSE, array(
+					'togglesOff' => array( 'xlc_delete_or_categories', 'xlc_categories' ),
+				) ) );
+	
+				$form->addDummy( '', \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_or_categories' ), NULL, NULL, 'xlc_delete_or_categories' );
+	
+				$form->add( new \IPS\Helpers\Form\Select( 'xlc_categories', NULL, FALSE, array(
+					'options'  => iterator_to_array( \IPS\Db::i()->select( 'DISTINCT(category) AS cat', 'core_log' )->setKeyField( 'cat' )->setValueField( 'cat' ) ),
+					'multiple' => TRUE,
+					'parse'    => 'normal',
+				), NULL, NULL, NULL, 'xlc_categories' ) );
+	
+				$form->add( new \IPS\Helpers\Form\Checkbox( 'xlc_confirm_delete', FALSE, TRUE, array(), function( $val ) {
+					if ( empty( $val ) )
+					{
+						throw new \DomainException( 'xlc_must_confirm_delete' );
+					}
+				} ) );
+	
+				if ( $values = $form->values() )
+				{
+					if ( $values['xlc_delete_all_toggle'] )
+					{
+						\IPS\Db::i()->delete( 'core_log' );
+						\IPS\Session::i()->log( 'xlc_acplog__all_system_logs' );
+					}
+					elseif ( !empty( $values['xlc_categories'] ) )
+					{
+						\IPS\Db::i()->delete( 'core_log', \IPS\Db::i()->in( 'category', $values['xlc_categories'] ) );
+						\IPS\Session::i()->log( 'xlc_acplog__system_categories', array( implode( ', ', $values['xlc_categories'] ) => FALSE ) );
+					}
+	
+					\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' ), 'deleted' );
+				}
+	
+				\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' );
+				\IPS\Output::i()->output = $form;
+			}
+			catch ( \Error | \RuntimeException $e )
+			{
+				if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+				{
+					return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Delete file-based logs — confirmation form
+	 *
+	 * @return	void
+	 */
+	protected function xlcDeleteFileLogs()
+	{
+		try
+		{
+			try
+			{
+				\IPS\Session::i()->csrfCheck();
+	
+				if ( \IPS\NO_WRITES )
+				{
+					\IPS\Output::i()->error( 'no_writes', '2XLC/1', 403, '' );
+				}
+	
+				$form = new \IPS\Helpers\Form;
+	
+				\IPS\Member::loggedIn()->language()->words['xlc_confirm_delete_desc'] = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_confirm_delete_files' );
+	
+				$form->add( new \IPS\Helpers\Form\Checkbox( 'xlc_confirm_delete', FALSE, TRUE, array(), function( $val ) {
+					if ( empty( $val ) )
+					{
+						throw new \DomainException( 'xlc_must_confirm_delete' );
+					}
+				} ) );
+	
+				if ( $values = $form->values() )
+				{
+					if ( $values['xlc_confirm_delete'] )
+					{
+						$dir = \IPS\Log::fallbackDir();
+						if ( is_dir( $dir ) )
+						{
+							foreach ( new \DirectoryIterator( $dir ) as $file )
+							{
+								if ( mb_substr( $file, 0, 1 ) !== '.' and $file != 'index.html' )
+								{
+									if ( !@unlink( $file->getPathname() ) )
+									{
+										\IPS\Output::i()->error(
+											\IPS\Member::loggedIn()->language()->addToStack( 'xlc_file_could_not_delete', FALSE, array( 'sprintf' => $file->getPathname() ) ),
+											'2XLC/2', 403, ''
+										);
+									}
+								}
+							}
+						}
+	
+						\IPS\Session::i()->log( 'xlc_acplog__all_file_logs' );
+					}
+	
+					\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' ), 'deleted' );
+				}
+	
+				\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' );
+				\IPS\Output::i()->output = $form;
+			}
+			catch ( \Error | \RuntimeException $e )
+			{
+				if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+				{
+					return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+}
+]]></hook><hook type="C" class="\IPS\core\modules\admin\support\errorLogs" filename="errorLogsController"><![CDATA[//<?php
+/**
+ * @brief		Hook on \IPS\core\modules\admin\support\errorLogs
+ * @author		XENNTEC UG
+ * @copyright	(c) 2026 XENNTEC UG
+ * @package		X Log Cleaner
+ * @since		1.0.0
+ */
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
+{
+	exit;
+}
+
+class hook476 extends _HOOK_CLASS_
+{
+	/**
+	 * Override manage() to inject "Delete Error Logs" sidebar button
+	 *
+	 * @return	void
+	 */
+	protected function manage()
+	{
+		try
+		{
+			try
+			{
+				parent::manage();
+	
+				$hasLogs = \IPS\Db::i()->select( 'COUNT(*)', 'core_error_logs' )->first();
+	
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs'] = array(
+					'title' => 'xlc_delete_error_logs',
+					'icon'  => 'trash',
+				);
+	
+				if ( $hasLogs )
+				{
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs&do=xlcDeleteErrorLogs' );
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' ) );
+				}
+				else
+				{
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['class'] = 'ipsButton_disabled';
+				}
+			}
+			catch ( \Error | \RuntimeException $e )
+			{
+				if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+				{
+					return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Delete error logs — form with "delete all" toggle and error level multi-select
+	 *
+	 * @return	void
+	 */
+	protected function xlcDeleteErrorLogs()
+	{
+		try
+		{
+			try
+			{
+				\IPS\Session::i()->csrfCheck();
+	
+				$form = new \IPS\Helpers\Form;
+	
+				$form->add( new \IPS\Helpers\Form\YesNo( 'xlc_delete_all_errors_toggle', FALSE, FALSE, array(
+					'togglesOff' => array( 'xlc_delete_or_levels', 'xlc_error_levels' ),
+				) ) );
+	
+				$form->addDummy( '', \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_or_levels' ), NULL, NULL, 'xlc_delete_or_levels' );
+	
+				/* Build level options from distinct first-digit of log_error_code */
+				$levelOptions = array();
+				$levelLabels  = array(
+					'1' => 'Level 1 — Informational',
+					'2' => 'Level 2 — Client Error',
+					'3' => 'Level 3 — Permission / Access',
+					'4' => 'Level 4 — Server Error',
+					'5' => 'Level 5 — Critical',
+				);
+	
+				try
+				{
+					$distinctLevels = \IPS\Db::i()->select( 'DISTINCT(SUBSTRING(log_error_code, 1, 1)) AS lvl', 'core_error_logs' );
+					foreach ( $distinctLevels as $row )
+					{
+						$lvl = $row;
+						if ( isset( $levelLabels[ $lvl ] ) )
+						{
+							$levelOptions[ $lvl ] = $levelLabels[ $lvl ];
+						}
+					}
+				}
+				catch ( \Exception $e )
+				{
+					/* Fallback: offer all levels */
+					$levelOptions = $levelLabels;
+				}
+	
+				ksort( $levelOptions );
+	
+				$form->add( new \IPS\Helpers\Form\CheckboxSet( 'xlc_error_levels', NULL, FALSE, array(
+					'options' => $levelOptions,
+				), NULL, NULL, NULL, 'xlc_error_levels' ) );
+	
+				$form->add( new \IPS\Helpers\Form\Checkbox( 'xlc_confirm_delete', FALSE, TRUE, array(), function( $val ) {
+					if ( empty( $val ) )
+					{
+						throw new \DomainException( 'xlc_must_confirm_delete' );
+					}
+				} ) );
+	
+				if ( $values = $form->values() )
+				{
+					if ( $values['xlc_delete_all_errors_toggle'] )
+					{
+						\IPS\Db::i()->delete( 'core_error_logs' );
+						\IPS\Session::i()->log( 'xlc_acplog__all_error_logs' );
+					}
+					elseif ( !empty( $values['xlc_error_levels'] ) )
+					{
+						$where = array();
+						foreach ( $values['xlc_error_levels'] as $level )
+						{
+							$where[] = "log_error_code LIKE '" . \IPS\Db::i()->real_escape_string( $level ) . "%'";
+						}
+						\IPS\Db::i()->delete( 'core_error_logs', implode( ' OR ', $where ) );
+						\IPS\Session::i()->log( 'xlc_acplog__error_levels', array( implode( ', ', $values['xlc_error_levels'] ) => FALSE ) );
+					}
+	
+					\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs' ), 'deleted' );
+				}
+	
+				\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' );
+				\IPS\Output::i()->output = $form;
+			}
+			catch ( \Error | \RuntimeException $e )
+			{
+				if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+				{
+					return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+}
+]]></hook></hooks><htmlFiles/><cssFiles/><jsFiles/><resourcesFiles/><lang><word key="xlc_confirm_delete" js="0">Confirm Delete</word><word key="xlc_must_confirm_delete" js="0">You must check the confirmation box to proceed with deletion.</word><word key="xlc_delete_system_logs" js="0">Delete System Logs</word><word key="xlc_delete_all_toggle" js="0">Delete all?</word><word key="xlc_delete_or_categories" js="0">Or delete only logs in specific categories:</word><word key="xlc_categories" js="0">Categories</word><word key="xlc_delete_file_logs" js="0">Delete File Logs</word><word key="xlc_confirm_delete_files" js="0">Confirming this action will delete ALL files in the logs folder.</word><word key="xlc_file_could_not_delete" js="0">The file could not be deleted: %s</word><word key="xlc_acplog__all_system_logs" js="0">Deleted all system logs</word><word key="xlc_acplog__system_categories" js="0">Deleted system logs in categories: %s</word><word key="xlc_acplog__all_file_logs" js="0">Deleted all system file logs</word><word key="xlc_delete_error_logs" js="0">Delete Error Logs</word><word key="xlc_delete_all_errors_toggle" js="0">Delete all?</word><word key="xlc_delete_or_levels" js="0">Or delete only errors at specific levels:</word><word key="xlc_error_levels" js="0">Error Levels</word><word key="xlc_acplog__all_error_logs" js="0">Deleted all error logs</word><word key="xlc_acplog__error_levels" js="0">Deleted error logs at levels: %s</word></lang><versions><version long="10000" human="1.0.0"/></versions></plugin>
