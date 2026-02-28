@@ -1,0 +1,10 @@
+{
+    "systemLogsController": {
+        "type": "C",
+        "class": "\\IPS\\core\\modules\\admin\\support\\systemLogs"
+    },
+    "errorLogsController": {
+        "type": "C",
+        "class": "\\IPS\\core\\modules\\admin\\support\\errorLogs"
+    }
+}

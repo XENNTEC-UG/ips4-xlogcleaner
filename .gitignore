@@ -1,0 +1,7 @@
+# Dependencies and caches
+.claude/
+.auto-claude/
+
+# Releases — only track plugin export tars
+releases/*
+!releases/.gitkeep

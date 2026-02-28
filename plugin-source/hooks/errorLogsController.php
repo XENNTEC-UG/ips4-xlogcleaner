@@ -1,0 +1,155 @@
+//<?php
+/**
+ * @brief		Hook on \IPS\core\modules\admin\support\errorLogs
+ * @author		XENNTEC UG
+ * @copyright	(c) 2026 XENNTEC UG
+ * @package		X Log Cleaner
+ * @since		1.0.0
+ */
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
+{
+	exit;
+}
+
+class xlogcleaner_hook_errorLogsController extends _HOOK_CLASS_
+{
+	/**
+	 * Override manage() to inject "Delete Error Logs" sidebar button
+	 *
+	 * @return	void
+	 */
+	protected function manage()
+	{
+		try
+		{
+			parent::manage();
+
+			$hasLogs = \IPS\Db::i()->select( 'COUNT(*)', 'core_error_logs' )->first();
+
+			\IPS\Output::i()->sidebar['actions'] = array(
+				'xlcDeleteErrorLogs' => array(
+					'title' => 'xlc_delete_error_logs',
+					'icon'  => 'trash',
+					'class' => 'ipsButton_disabled',
+				),
+			) + \IPS\Output::i()->sidebar['actions'];
+
+			if ( $hasLogs )
+			{
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs&do=xlcDeleteErrorLogs' );
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' ) );
+				unset( \IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['class'] );
+			}
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Delete error logs — form with "delete all" toggle and error level multi-select
+	 *
+	 * @return	void
+	 */
+	protected function xlcDeleteErrorLogs()
+	{
+		try
+		{
+			\IPS\Session::i()->csrfCheck();
+
+			$form = new \IPS\Helpers\Form;
+
+			$form->add( new \IPS\Helpers\Form\YesNo( 'xlc_delete_all_errors_toggle', FALSE, FALSE, array(
+				'togglesOff' => array( 'xlc_delete_or_levels', 'xlc_error_levels' ),
+			) ) );
+
+			$form->addDummy( '', \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_or_levels' ), NULL, NULL, 'xlc_delete_or_levels' );
+
+			/* Build level options from distinct first-digit of log_error_code */
+			$levelOptions = array();
+			$levelLabels  = array(
+				'1' => 'Level 1 — Informational',
+				'2' => 'Level 2 — Client Error',
+				'3' => 'Level 3 — Permission / Access',
+				'4' => 'Level 4 — Server Error',
+				'5' => 'Level 5 — Critical',
+			);
+
+			try
+			{
+				$distinctLevels = \IPS\Db::i()->select( 'DISTINCT(SUBSTRING(log_error_code, 1, 1)) AS lvl', 'core_error_logs' );
+				foreach ( $distinctLevels as $row )
+				{
+					$lvl = $row;
+					if ( isset( $levelLabels[ $lvl ] ) )
+					{
+						$levelOptions[ $lvl ] = $levelLabels[ $lvl ];
+					}
+				}
+			}
+			catch ( \Exception $e )
+			{
+				/* Fallback: offer all levels */
+				$levelOptions = $levelLabels;
+			}
+
+			ksort( $levelOptions );
+
+			$form->add( new \IPS\Helpers\Form\CheckboxSet( 'xlc_error_levels', NULL, FALSE, array(
+				'options' => $levelOptions,
+			), NULL, NULL, NULL, 'xlc_error_levels' ) );
+
+			$form->add( new \IPS\Helpers\Form\Checkbox( 'xlc_confirm_delete', FALSE, TRUE, array(), function( $val ) {
+				if ( empty( $val ) )
+				{
+					throw new \DomainException( 'xlc_must_confirm_delete' );
+				}
+			} ) );
+
+			if ( $values = $form->values() )
+			{
+				if ( $values['xlc_delete_all_errors_toggle'] )
+				{
+					\IPS\Db::i()->delete( 'core_error_logs' );
+					\IPS\Session::i()->log( 'xlc_acplog__all_error_logs' );
+				}
+				elseif ( !empty( $values['xlc_error_levels'] ) )
+				{
+					$where = array();
+					foreach ( $values['xlc_error_levels'] as $level )
+					{
+						$where[] = "log_error_code LIKE '" . \IPS\Db::i()->real_escape_string( $level ) . "%'";
+					}
+					\IPS\Db::i()->delete( 'core_error_logs', implode( ' OR ', $where ) );
+					\IPS\Session::i()->log( 'xlc_acplog__error_levels', array( implode( ', ', $values['xlc_error_levels'] ) => FALSE ) );
+				}
+
+				\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs' ), 'deleted' );
+			}
+
+			\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' );
+			\IPS\Output::i()->output = $form;
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+}
