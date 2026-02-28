@@ -13,7 +13,7 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 	exit;
 }
 
-class xlogcleaner_hook_systemLogsController extends _HOOK_CLASS_
+class hook193 extends _HOOK_CLASS_
 {
 	/**
 	 * Override manage() to inject "Delete All Logs" sidebar button
@@ -28,19 +28,19 @@ class xlogcleaner_hook_systemLogsController extends _HOOK_CLASS_
 
 			$hasLogs = \IPS\Db::i()->select( 'COUNT(*)', 'core_log' )->first();
 
-			\IPS\Output::i()->sidebar['actions'] = array(
-				'xlcDeleteSystemLogs' => array(
-					'title' => 'xlc_delete_system_logs',
-					'icon'  => 'trash',
-					'class' => 'ipsButton_disabled',
-				),
-			) + \IPS\Output::i()->sidebar['actions'];
+			\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs'] = array(
+				'title' => 'xlc_delete_system_logs',
+				'icon'  => 'trash',
+			);
 
 			if ( $hasLogs )
 			{
 				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteSystemLogs' );
 				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' ) );
-				unset( \IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['class'] );
+			}
+			else
+			{
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['class'] = 'ipsButton_disabled';
 			}
 		}
 		catch ( \Error | \RuntimeException $e )
