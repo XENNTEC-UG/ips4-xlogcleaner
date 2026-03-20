@@ -49,6 +49,13 @@ Two class hooks, one per ACP controller:
 - Sidebar button disabled when no logs exist
 - Modal dialog (`ipsDialog`) prevents accidental clicks
 
+## Hook Class IDs
+
+| Hook File | Class Name |
+|---|---|
+| `systemLogsController.php` | `hook193` |
+| `errorLogsController.php` | `hook476` |
+
 ## Code Patterns
 
 All methods follow the xbulkdevtools reference:

@@ -20,6 +20,7 @@ Replaces the third-party "(TB) Delete All System Logs Button" plugin with XENNTE
 | `plugin-source/hooks/errorLogsController.php` | Error logs hook |
 | `plugin-source/dev/lang.php` | Language strings (prefix: `xlc_`) |
 | `plugin-source/dev/hooks.json` | Hook registration |
+| `plugin-source/dev/versions.json` | Version registry |
 
 ## Source of Truth
 

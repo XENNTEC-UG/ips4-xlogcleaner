@@ -7,7 +7,7 @@
 | Version | 1.0.0 |
 | Long Version | 10000 |
 | Type | Plugin |
-| Compatibility | IPS4 4.7+ / PHP 8.0+ |
+| Compatibility | IPS4 4.7+ / PHP 8.1+ |
 
 ## Capabilities
 
