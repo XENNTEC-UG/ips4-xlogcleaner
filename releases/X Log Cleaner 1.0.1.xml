@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin name="X Log Cleaner" version_long="10000" version_human="1.0.0" author="XENNTEC UG" website="https://xenntec.net" update_check="https://xenntec-ug.github.io/ips4-updates/xlogcleaner.json"><hooks><hook type="C" class="\IPS\core\modules\admin\support\systemLogs" filename="systemLogsController"><![CDATA[//<?php
+<plugin name="X Log Cleaner" version_long="10001" version_human="1.0.1" author="XENNTEC UG" website="https://xenntec.net" update_check="https://xenntec-ug.github.io/ips4-updates/xlogcleaner.json"><hooks><hook type="C" class="\IPS\core\modules\admin\support\systemLogs" filename="systemLogsController"><![CDATA[//<?php
 /**
  * @brief		Hook on \IPS\core\modules\admin\support\systemLogs
  * @author		XENNTEC UG
@@ -16,6 +16,30 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 
 class hook193 extends _HOOK_CLASS_
 {
+	public static function hookData(): array
+	{
+		try
+		{
+			return array();
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
 	/**
 	 * Override manage() to inject "Delete All Logs" sidebar button
 	 *
@@ -316,6 +340,30 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 
 class hook476 extends _HOOK_CLASS_
 {
+	public static function hookData(): array
+	{
+		try
+		{
+			return array();
+		}
+		catch ( \Error | \RuntimeException $e )
+		{
+			if( \defined( '\IPS\DEBUG_HOOKS' ) AND \IPS\DEBUG_HOOKS )
+			{
+				\IPS\Log::log( $e, 'hook_exception' );
+			}
+
+			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			{
+				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+			}
+			else
+			{
+				throw $e;
+			}
+		}
+	}
+
 	/**
 	 * Override manage() to inject "Delete Error Logs" sidebar button
 	 *
@@ -447,12 +495,14 @@ class hook476 extends _HOOK_CLASS_
 					}
 					elseif ( !empty( $values['xlc_error_levels'] ) )
 					{
-						$where = array();
+						$conditions = array();
+						$binds = array();
 						foreach ( $values['xlc_error_levels'] as $level )
 						{
-							$where[] = "log_error_code LIKE '" . \IPS\Db::i()->real_escape_string( $level ) . "%'";
+							$conditions[] = 'log_error_code LIKE ?';
+							$binds[] = $level . '%';
 						}
-						\IPS\Db::i()->delete( 'core_error_logs', implode( ' OR ', $where ) );
+						\IPS\Db::i()->delete( 'core_error_logs', \array_merge( array( implode( ' OR ', $conditions ) ), $binds ) );
 						\IPS\Session::i()->log( 'xlc_acplog__error_levels', array( implode( ', ', $values['xlc_error_levels'] ) => FALSE ) );
 					}
 	
@@ -492,4 +542,4 @@ class hook476 extends _HOOK_CLASS_
 		}
 	}
 }
-]]></hook></hooks><htmlFiles/><cssFiles/><jsFiles/><resourcesFiles/><lang><word key="xlc_confirm_delete" js="0">Confirm Delete</word><word key="xlc_must_confirm_delete" js="0">You must check the confirmation box to proceed with deletion.</word><word key="xlc_delete_system_logs" js="0">Delete System Logs</word><word key="xlc_delete_all_toggle" js="0">Delete all?</word><word key="xlc_delete_or_categories" js="0">Or delete only logs in specific categories:</word><word key="xlc_categories" js="0">Categories</word><word key="xlc_delete_file_logs" js="0">Delete File Logs</word><word key="xlc_confirm_delete_files" js="0">Confirming this action will delete ALL files in the logs folder.</word><word key="xlc_file_could_not_delete" js="0">The file could not be deleted: %s</word><word key="xlc_acplog__all_system_logs" js="0">Deleted all system logs</word><word key="xlc_acplog__system_categories" js="0">Deleted system logs in categories: %s</word><word key="xlc_acplog__all_file_logs" js="0">Deleted all system file logs</word><word key="xlc_delete_error_logs" js="0">Delete Error Logs</word><word key="xlc_delete_all_errors_toggle" js="0">Delete all?</word><word key="xlc_delete_or_levels" js="0">Or delete only errors at specific levels:</word><word key="xlc_error_levels" js="0">Error Levels</word><word key="xlc_acplog__all_error_logs" js="0">Deleted all error logs</word><word key="xlc_acplog__error_levels" js="0">Deleted error logs at levels: %s</word></lang><versions><version long="10000" human="1.0.0"/></versions></plugin>
+]]></hook></hooks><htmlFiles/><cssFiles/><jsFiles/><resourcesFiles/><lang><word key="xlc_confirm_delete" js="0">Confirm Delete</word><word key="xlc_must_confirm_delete" js="0">You must check the confirmation box to proceed with deletion.</word><word key="xlc_delete_system_logs" js="0">Delete System Logs</word><word key="xlc_delete_all_toggle" js="0">Delete all?</word><word key="xlc_delete_or_categories" js="0">Or delete only logs in specific categories:</word><word key="xlc_categories" js="0">Categories</word><word key="xlc_delete_file_logs" js="0">Delete File Logs</word><word key="xlc_confirm_delete_files" js="0">Confirming this action will delete ALL files in the logs folder.</word><word key="xlc_file_could_not_delete" js="0">The file could not be deleted: %s</word><word key="xlc_acplog__all_system_logs" js="0">Deleted all system logs</word><word key="xlc_acplog__system_categories" js="0">Deleted system logs in categories: %s</word><word key="xlc_acplog__all_file_logs" js="0">Deleted all system file logs</word><word key="xlc_delete_error_logs" js="0">Delete Error Logs</word><word key="xlc_delete_all_errors_toggle" js="0">Delete all?</word><word key="xlc_delete_or_levels" js="0">Or delete only errors at specific levels:</word><word key="xlc_error_levels" js="0">Error Levels</word><word key="xlc_acplog__all_error_logs" js="0">Deleted all error logs</word><word key="xlc_acplog__error_levels" js="0">Deleted error logs at levels: %s</word></lang><versions><version long="10000" human="1.0.0"/><version long="10001" human="1.0.1"/></versions></plugin>
