@@ -15,6 +15,11 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 
 class hook476 extends _HOOK_CLASS_
 {
+	public static function hookData(): array
+	{
+		return array();
+	}
+
 	/**
 	 * Override manage() to inject "Delete Error Logs" sidebar button
 	 *
@@ -125,12 +130,14 @@ class hook476 extends _HOOK_CLASS_
 				}
 				elseif ( !empty( $values['xlc_error_levels'] ) )
 				{
-					$where = array();
+					$conditions = array();
+					$binds = array();
 					foreach ( $values['xlc_error_levels'] as $level )
 					{
-						$where[] = "log_error_code LIKE '" . \IPS\Db::i()->real_escape_string( $level ) . "%'";
+						$conditions[] = 'log_error_code LIKE ?';
+						$binds[] = $level . '%';
 					}
-					\IPS\Db::i()->delete( 'core_error_logs', implode( ' OR ', $where ) );
+					\IPS\Db::i()->delete( 'core_error_logs', \array_merge( array( implode( ' OR ', $conditions ) ), $binds ) );
 					\IPS\Session::i()->log( 'xlc_acplog__error_levels', array( implode( ', ', $values['xlc_error_levels'] ) => FALSE ) );
 				}
 

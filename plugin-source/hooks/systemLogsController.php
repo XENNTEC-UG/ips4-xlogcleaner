@@ -15,6 +15,11 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 
 class hook193 extends _HOOK_CLASS_
 {
+	public static function hookData(): array
+	{
+		return array();
+	}
+
 	/**
 	 * Override manage() to inject "Delete All Logs" sidebar button
 	 *
