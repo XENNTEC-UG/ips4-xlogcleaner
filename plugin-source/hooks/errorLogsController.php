@@ -15,7 +15,7 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 
 class hook476 extends _HOOK_CLASS_
 {
-	public static function hookData(): array
+	public static function hookData()
 	{
 		return array();
 	}
