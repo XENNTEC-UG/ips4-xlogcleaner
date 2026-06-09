@@ -6,11 +6,11 @@ Replaces the third-party "(TB) Delete All System Logs Button" plugin with XENNTE
 
 ## Read Order
 
-1. [GitHub Issues](https://github.com/XENNTEC-UG/ips4-xlogcleaner/issues) — open bugs, enhancements, ideas
-2. [ARCHITECTURE.md](ARCHITECTURE.md) — hook design, methods, data flow
-3. [FEATURES.MD](FEATURES.MD) — capability overview and current version
-4. [FLOW.md](FLOW.md) — entry points and runtime flow
-5. [TEST_RUNTIME.md](TEST_RUNTIME.md) — manual verification procedures
+1. [GitHub Issues](https://github.com/XENNTEC-UG/ips4-xlogcleaner/issues): open bugs, enhancements, ideas
+2. [ARCHITECTURE.md](ARCHITECTURE.md): hook design, methods, data flow
+3. [FEATURES.MD](FEATURES.MD): capability overview and current version
+4. [FLOW.md](FLOW.md): entry points and runtime flow
+5. [TEST_RUNTIME.md](TEST_RUNTIME.md): manual verification procedures
 
 ## Source Paths
 
@@ -29,7 +29,7 @@ Replaces the third-party "(TB) Delete All System Logs Button" plugin with XENNTE
 
 ## Global Context
 
-- [Root README](../../../README.md) — stack setup, Docker, SSL
-- [IPS4 Dev Guide](../../../IPS4_DEV_GUIDE.md) — coding standards, sync workflow
-- [AI Tools](../../../AI_TOOLS.md) — MCP tool reference, browser testing
-- [CLAUDE.md](../../../CLAUDE.md) — project routing hub, component registry
+- [Root README](../../../README.md): stack setup, Docker, SSL
+- [IPS4 Dev Guide](../../../IPS4_DEV_GUIDE.md): coding standards, sync workflow
+- [AI Tools](../../../AI_TOOLS.md): MCP tool reference, browser testing
+- [CLAUDE.md](../../../CLAUDE.md): project routing hub, component registry
