@@ -1,8 +1,8 @@
 # X Log Cleaner
 
-ACP utility plugin that adds bulk delete buttons to the **System Logs** and **Error Logs** pages. Administrators can delete all logs at once or filter by category (system logs) or error level (error logs). File-based logs can also be purged. Every deletion is recorded in the ACP administrator audit log.
+ACP utility plugin that extends the IPS4 **System Logs** and **Error Logs** controllers with bulk cleanup actions. Administrators can delete every database log in a viewer, limit system-log deletion by category, or limit error-log deletion by the first digit of the error code. A separate action removes entries from the IPS fallback log directory. Each deletion path requires confirmation and writes an entry to the ACP administrator audit log.
 
-Replaces the third-party "(TB) Delete All System Logs Button" plugin with XENNTEC-standard naming, expanded scope (error logs), and aligned code quality.
+The plugin uses class hooks and existing IPS forms, database access, session logging, and output handling. It adds no settings, tasks, templates, JavaScript, or database schema.
 
 ## Read Order
 
