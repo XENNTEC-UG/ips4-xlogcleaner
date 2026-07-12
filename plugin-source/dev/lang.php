@@ -14,7 +14,7 @@ $lang = array(
 	'xlc_confirm_delete_files'        => 'Confirming this action will delete ALL files in the logs folder.',
 	'xlc_file_could_not_delete'       => 'The file could not be deleted: %s',
 
-	/* System logs — ACP audit */
+	/* System logs: ACP audit */
 	'xlc_acplog__all_system_logs'     => 'Deleted all system logs',
 	'xlc_acplog__system_categories'   => 'Deleted system logs in categories: %s',
 	'xlc_acplog__all_file_logs'       => 'Deleted all system file logs',
@@ -24,8 +24,13 @@ $lang = array(
 	'xlc_delete_all_errors_toggle'    => 'Delete all?',
 	'xlc_delete_or_levels'            => 'Or delete only errors at specific levels:',
 	'xlc_error_levels'                => 'Error Levels',
+	'xlc_error_level_1'               => 'Level 1, informational',
+	'xlc_error_level_2'               => 'Level 2, client error',
+	'xlc_error_level_3'               => 'Level 3, permission or access',
+	'xlc_error_level_4'               => 'Level 4, server error',
+	'xlc_error_level_5'               => 'Level 5, critical',
 
-	/* Error logs — ACP audit */
+	/* Error logs: ACP audit */
 	'xlc_acplog__all_error_logs'      => 'Deleted all error logs',
 	'xlc_acplog__error_levels'        => 'Deleted error logs at levels: %s',
 );

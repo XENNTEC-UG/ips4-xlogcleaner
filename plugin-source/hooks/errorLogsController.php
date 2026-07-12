@@ -40,7 +40,7 @@ class hook476 extends _HOOK_CLASS_
 
 			if ( $hasLogs )
 			{
-				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs&do=xlcDeleteErrorLogs' );
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs&do=xlcDeleteErrorLogs' )->csrf();
 				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' ) );
 			}
 			else
@@ -62,7 +62,7 @@ class hook476 extends _HOOK_CLASS_
 	}
 
 	/**
-	 * Delete error logs — form with "delete all" toggle and error level multi-select
+	 * Delete error logs with a "delete all" toggle and error level multi-select
 	 *
 	 * @return	void
 	 */
@@ -83,11 +83,11 @@ class hook476 extends _HOOK_CLASS_
 			/* Build level options from distinct first-digit of log_error_code */
 			$levelOptions = array();
 			$levelLabels  = array(
-				'1' => 'Level 1 — Informational',
-				'2' => 'Level 2 — Client Error',
-				'3' => 'Level 3 — Permission / Access',
-				'4' => 'Level 4 — Server Error',
-				'5' => 'Level 5 — Critical',
+				'1' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_error_level_1' ),
+				'2' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_error_level_2' ),
+				'3' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_error_level_3' ),
+				'4' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_error_level_4' ),
+				'5' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_error_level_5' ),
 			);
 
 			try
@@ -123,10 +123,13 @@ class hook476 extends _HOOK_CLASS_
 
 			if ( $values = $form->values() )
 			{
+				$deleted = FALSE;
+
 				if ( $values['xlc_delete_all_errors_toggle'] )
 				{
 					\IPS\Db::i()->delete( 'core_error_logs' );
 					\IPS\Session::i()->log( 'xlc_acplog__all_error_logs' );
+					$deleted = TRUE;
 				}
 				elseif ( !empty( $values['xlc_error_levels'] ) )
 				{
@@ -139,9 +142,16 @@ class hook476 extends _HOOK_CLASS_
 					}
 					\IPS\Db::i()->delete( 'core_error_logs', \array_merge( array( implode( ' OR ', $conditions ) ), $binds ) );
 					\IPS\Session::i()->log( 'xlc_acplog__error_levels', array( implode( ', ', $values['xlc_error_levels'] ) => FALSE ) );
+					$deleted = TRUE;
 				}
 
-				\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs' ), 'deleted' );
+				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs' );
+				if ( $deleted )
+				{
+					\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
+				}
+
+				\IPS\Output::i()->redirect( $redirectUrl );
 			}
 
 			\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' );

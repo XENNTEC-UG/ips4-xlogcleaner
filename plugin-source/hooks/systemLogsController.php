@@ -40,7 +40,7 @@ class hook193 extends _HOOK_CLASS_
 
 			if ( $hasLogs )
 			{
-				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteSystemLogs' );
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteSystemLogs' )->csrf();
 				\IPS\Output::i()->sidebar['actions']['xlcDeleteSystemLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' ) );
 			}
 			else
@@ -70,12 +70,22 @@ class hook193 extends _HOOK_CLASS_
 	{
 		try
 		{
+			$hasLogs = $this->xlcHasFallbackLogFiles();
+
 			\IPS\Output::i()->sidebar['actions']['xlcDeleteFileLogs'] = array(
 				'title' => 'xlc_delete_file_logs',
 				'icon'  => 'trash',
-				'link'  => \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteFileLogs' ),
-				'data'  => array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' ) ),
 			);
+
+			if ( $hasLogs )
+			{
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteFileLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs&do=xlcDeleteFileLogs' )->csrf();
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteFileLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' ) );
+			}
+			else
+			{
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteFileLogs']['class'] = 'ipsButton_disabled';
+			}
 
 			parent::fileLogs();
 		}
@@ -93,7 +103,31 @@ class hook193 extends _HOOK_CLASS_
 	}
 
 	/**
-	 * Delete system logs — form with "delete all" toggle and category multi-select
+	 * Check whether the fallback log directory contains files that can be deleted
+	 *
+	 * @return	bool
+	 */
+	protected function xlcHasFallbackLogFiles()
+	{
+		$dir = \IPS\Log::fallbackDir();
+		if ( !is_dir( $dir ) )
+		{
+			return FALSE;
+		}
+
+		foreach ( new \DirectoryIterator( $dir ) as $file )
+		{
+			if ( $file->isFile() and mb_substr( $file->getFilename(), 0, 1 ) !== '.' and $file->getFilename() != 'index.html' )
+			{
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+	/**
+	 * Delete system logs with a "delete all" toggle and category multi-select
 	 *
 	 * @return	void
 	 */
@@ -126,18 +160,28 @@ class hook193 extends _HOOK_CLASS_
 
 			if ( $values = $form->values() )
 			{
+				$deleted = FALSE;
+
 				if ( $values['xlc_delete_all_toggle'] )
 				{
 					\IPS\Db::i()->delete( 'core_log' );
 					\IPS\Session::i()->log( 'xlc_acplog__all_system_logs' );
+					$deleted = TRUE;
 				}
 				elseif ( !empty( $values['xlc_categories'] ) )
 				{
 					\IPS\Db::i()->delete( 'core_log', \IPS\Db::i()->in( 'category', $values['xlc_categories'] ) );
 					\IPS\Session::i()->log( 'xlc_acplog__system_categories', array( implode( ', ', $values['xlc_categories'] ) => FALSE ) );
+					$deleted = TRUE;
 				}
 
-				\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' ), 'deleted' );
+				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );
+				if ( $deleted )
+				{
+					\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
+				}
+
+				\IPS\Output::i()->redirect( $redirectUrl );
 			}
 
 			\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' );
@@ -157,7 +201,7 @@ class hook193 extends _HOOK_CLASS_
 	}
 
 	/**
-	 * Delete file-based logs — confirmation form
+	 * Delete file-based logs with a confirmation form
 	 *
 	 * @return	void
 	 */
@@ -185,6 +229,8 @@ class hook193 extends _HOOK_CLASS_
 
 			if ( $values = $form->values() )
 			{
+				$deleted = FALSE;
+
 				if ( $values['xlc_confirm_delete'] )
 				{
 					$dir = \IPS\Log::fallbackDir();
@@ -192,23 +238,36 @@ class hook193 extends _HOOK_CLASS_
 					{
 						foreach ( new \DirectoryIterator( $dir ) as $file )
 						{
-							if ( mb_substr( $file, 0, 1 ) !== '.' and $file != 'index.html' )
+							if ( !$file->isFile() or mb_substr( $file->getFilename(), 0, 1 ) === '.' or $file->getFilename() == 'index.html' )
 							{
-								if ( !@unlink( $file->getPathname() ) )
-								{
-									\IPS\Output::i()->error(
-										\IPS\Member::loggedIn()->language()->addToStack( 'xlc_file_could_not_delete', FALSE, array( 'sprintf' => $file->getPathname() ) ),
-										'2XLC/2', 403, ''
-									);
-								}
+								continue;
 							}
+
+							if ( !@unlink( $file->getPathname() ) )
+							{
+								\IPS\Output::i()->error(
+									\IPS\Member::loggedIn()->language()->addToStack( 'xlc_file_could_not_delete', FALSE, array( 'sprintf' => $file->getPathname() ) ),
+									'2XLC/2', 403, ''
+								);
+							}
+
+							$deleted = TRUE;
 						}
 					}
 
-					\IPS\Session::i()->log( 'xlc_acplog__all_file_logs' );
+					if ( $deleted )
+					{
+						\IPS\Session::i()->log( 'xlc_acplog__all_file_logs' );
+					}
 				}
 
-				\IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' ), 'deleted' );
+				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );
+				if ( $deleted )
+				{
+					\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
+				}
+
+				\IPS\Output::i()->redirect( $redirectUrl );
 			}
 
 			\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' );
