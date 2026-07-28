@@ -6,7 +6,7 @@
 
 | Field | Value |
 |---|---|
-| Version | 1.0.3 |
+| Version | 1.0.4 |
 | Long Version | 10003 |
 | Type | Plugin |
 | Compatibility | IPS4 4.7+ / PHP 8.1+ |
