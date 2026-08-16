@@ -6,8 +6,8 @@
 
 | Field | Value |
 |---|---|
-| Version | 1.0.4 |
-| Long Version | 10003 |
+| Version | 1.0.5 |
+| Long Version | 10005 |
 | Type | Plugin |
 | Compatibility | IPS4 4.7+ / PHP 8.1+ |
 
@@ -16,7 +16,7 @@
 | Pillar | Summary | Benefit |
 | --- | --- | --- |
 | System log cleanup | Deletes all rows from `core_log` or rows in selected categories from a dynamically populated multi-select | Gives administrators an all-record or category-filtered cleanup action in the system log viewer |
-| Error log cleanup | Deletes all rows from `core_error_logs` or rows whose `log_error_code` begins with a selected recognized level from 1 through 5 | Gives administrators an all-record or level-filtered cleanup action in the error log viewer |
+| Error log cleanup | Deletes all rows from `core_error_logs` or rows whose `log_error_code` begins with a selected recognized level from 1 through 5; the delete action requires the core ACP restriction `diagnostic_log_settings` (`core` / `support`) | Gives administrators an all-record or level-filtered cleanup action in the error log viewer |
 | File-based log cleanup | Attempts to unlink entries in `\IPS\Log::fallbackDir()`, excluding dot entries and `index.html`, and refuses the action when `NO_WRITES` is active | Adds a cleanup action for disk-based fallback logs |
 | Confirmation forms | Requires a validated confirmation checkbox for every cleanup form and opens actions in an `ipsDialog` modal | Adds an explicit confirmation step before a deletion branch runs |
 | Audit trail | Records each successful deletion branch in the ACP administrator log | Identifies whether all logs or a selected filter was deleted |

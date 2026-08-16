@@ -74,3 +74,11 @@ After each deletion action, check ACP → System → Logs → Administrator Logs
 - "Deleted all system file logs"
 - "Deleted all error logs"
 - "Deleted error logs at levels: ..."
+
+### TC10: Error Logs — ACP Restriction
+
+1. Sign in with a staff account that has only the core `system_logs_view` ACP restriction
+2. Navigate to ACP → System → Support → Error Logs and verify there is no "Delete Error Logs" button
+3. Open the direct `do=xlcDeleteErrorLogs` URL and verify the response is HTTP 403
+4. Grant the core `diagnostic_log_settings` ACP restriction (`core` / `support`)
+5. Verify the "Delete Error Logs" button is restored and the direct action URL opens the delete form

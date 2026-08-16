@@ -45,6 +45,7 @@ Two class hooks, one per ACP controller:
 
 ## Safety Mechanisms
 
+- The error-log delete button and action require the core `diagnostic_log_settings` ACP restriction
 - Confirmation checkbox required on all delete forms and validated server-side
 - `NO_WRITES` guard on file deletion
 - Successful deletion branches logged to the ACP administrator audit trail

@@ -31,21 +31,24 @@ class hook476 extends _HOOK_CLASS_
 		{
 			parent::manage();
 
-			$hasLogs = \IPS\Db::i()->select( 'COUNT(*)', 'core_error_logs' )->first();
-
-			\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs'] = array(
-				'title' => 'xlc_delete_error_logs',
-				'icon'  => 'trash',
-			);
-
-			if ( $hasLogs )
+			if ( \IPS\Member::loggedIn()->hasAcpRestriction( 'core', 'support', 'diagnostic_log_settings' ) )
 			{
-				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs&do=xlcDeleteErrorLogs' )->csrf();
-				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' ) );
-			}
-			else
-			{
-				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['class'] = 'ipsButton_disabled';
+				$hasLogs = \IPS\Db::i()->select( 'COUNT(*)', 'core_error_logs' )->first();
+
+				\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs'] = array(
+					'title' => 'xlc_delete_error_logs',
+					'icon'  => 'trash',
+				);
+
+				if ( $hasLogs )
+				{
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['link'] = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs&do=xlcDeleteErrorLogs' )->csrf();
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['data'] = array( 'ipsDialog' => '', 'ipsDialog-title' => \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' ) );
+				}
+				else
+				{
+					\IPS\Output::i()->sidebar['actions']['xlcDeleteErrorLogs']['class'] = 'ipsButton_disabled';
+				}
 			}
 		}
 		catch ( \Error | \RuntimeException $e )
@@ -70,6 +73,7 @@ class hook476 extends _HOOK_CLASS_
 	{
 		try
 		{
+			\IPS\Dispatcher::i()->checkAcpPermission( 'diagnostic_log_settings' );
 			\IPS\Session::i()->csrfCheck();
 
 			$form = new \IPS\Helpers\Form;
