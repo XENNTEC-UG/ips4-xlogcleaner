@@ -149,6 +149,12 @@ class hook476 extends _HOOK_CLASS_
 					$deleted = TRUE;
 				}
 
+				/* Core only clears the Error admin notification inside its cleanup task, so do it here too when the table is now empty */
+				if ( $deleted && !\IPS\Db::i()->select( 'COUNT(*)', 'core_error_logs' )->first() )
+				{
+					\IPS\core\AdminNotification::remove( 'core', 'Error' );
+				}
+
 				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs' );
 				if ( $deleted )
 				{
