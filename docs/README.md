@@ -29,7 +29,7 @@ The plugin uses class hooks and existing IPS forms, database access, session log
 
 ## Global Context
 
-- [Root README](../../../README.md): stack setup, Docker, SSL
-- [IPS4 Dev Guide](../../../IPS4_DEV_GUIDE.md): coding standards, sync workflow
-- [AI Tools](../../../AI_TOOLS.md): MCP tool reference, browser testing
-- [CLAUDE.md](../../../CLAUDE.md): project routing hub, component registry
+- [Root README](../../../../README.md): stack setup, Docker, SSL
+- [IPS4 Dev Guide](../../../../IPS4_DEV_GUIDE.md): coding standards, sync workflow
+- [AI Tools](../../../../AI_TOOLS.md): MCP tool reference, browser testing
+- [AGENTS.md](../../../../AGENTS.md): project routing hub, component registry
