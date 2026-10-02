@@ -68,7 +68,7 @@
 
 ### TC9: ACP Audit Trail
 
-After each deletion action, check ACP → System → Logs → Administrator Logs for:
+After each deletion action, check ACP → Members → Staff Management → Administrators → Administrator Logs for:
 - "Deleted all system logs"
 - "Deleted system logs in categories: ..."
 - "Deleted all system file logs"

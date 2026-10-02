@@ -6,7 +6,7 @@ Two class hooks, one per ACP controller:
 
 | Hook File | Target Class | Methods |
 |---|---|---|
-| `systemLogsController.php` | `\IPS\core\modules\admin\support\systemLogs` | `hookData()`, `manage()`, `fileLogs()`, `xlcDeleteSystemLogs()`, `xlcDeleteFileLogs()` |
+| `systemLogsController.php` | `\IPS\core\modules\admin\support\systemLogs` | `hookData()`, `manage()`, `fileLogs()`, `xlcHasFallbackLogFiles()`, `xlcDeleteSystemLogs()`, `xlcDeleteFileLogs()` |
 | `errorLogsController.php` | `\IPS\core\modules\admin\support\errorLogs` | `hookData()`, `manage()`, `xlcDeleteErrorLogs()` |
 
 ## Method Reference
