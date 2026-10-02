@@ -145,8 +145,21 @@ class hook193 extends _HOOK_CLASS_
 
 			$form->addDummy( '', \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_or_categories' ), NULL, NULL, 'xlc_delete_or_categories' );
 
-			$form->add( new \IPS\Helpers\Form\Select( 'xlc_categories', NULL, FALSE, array(
-				'options'  => iterator_to_array( \IPS\Db::i()->select( 'DISTINCT(category) AS cat', 'core_log' )->setKeyField( 'cat' )->setValueField( 'cat' ) ),
+			$categories = array();
+			foreach ( \IPS\Db::i()->select( 'DISTINCT(category)', 'core_log' ) as $category )
+			{
+				if ( $category === NULL || $category === '' )
+				{
+					$categories['none'] = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_category_none' );
+				}
+				else
+				{
+					$categories['category:' . $category] = $category;
+				}
+			}
+
+			$form->add( new \IPS\Helpers\Form\Select( 'xlc_categories', array(), FALSE, array(
+				'options'  => $categories,
 				'multiple' => TRUE,
 				'parse'    => 'normal',
 			), NULL, NULL, NULL, 'xlc_categories' ) );
@@ -170,9 +183,21 @@ class hook193 extends _HOOK_CLASS_
 				}
 				elseif ( !empty( $values['xlc_categories'] ) )
 				{
-					\IPS\Db::i()->delete( 'core_log', \IPS\Db::i()->in( 'category', $values['xlc_categories'] ) );
-					\IPS\Session::i()->log( 'xlc_acplog__system_categories', array( implode( ', ', $values['xlc_categories'] ) => FALSE ) );
-					$deleted = TRUE;
+					$where = $params = $labels = array();
+					foreach ( array_intersect( $values['xlc_categories'], array_keys( $categories ) ) as $category )
+					{
+						$where[] = $category === 'none' ? '(category IS NULL OR category=?)' : 'category=?';
+						$params[] = $category === 'none' ? '' : $categories[$category];
+						/* Stored in the admin log as text, so the real string, not a lang-stack marker */
+						$labels[] = $category === 'none' ? \IPS\Member::loggedIn()->language()->get( 'xlc_category_none' ) : $categories[$category];
+					}
+
+					if ( $where )
+					{
+						\IPS\Db::i()->delete( 'core_log', array_merge( array( implode( ' OR ', $where ) ), $params ) );
+						\IPS\Session::i()->log( 'xlc_acplog__system_categories', array( implode( ', ', $labels ) => FALSE ) );
+						$deleted = TRUE;
+					}
 				}
 
 				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );

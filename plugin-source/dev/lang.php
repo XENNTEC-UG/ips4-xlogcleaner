@@ -10,6 +10,7 @@ $lang = array(
 	'xlc_delete_all_toggle'           => 'Delete all?',
 	'xlc_delete_or_categories'        => 'Or delete only logs in specific categories:',
 	'xlc_categories'                  => 'Categories',
+	'xlc_category_none'               => '(no category)',
 	'xlc_delete_file_logs'            => 'Delete File Logs',
 	'xlc_confirm_delete_files'        => 'Confirming this action will delete ALL files in the logs folder.',
 	'xlc_file_could_not_delete'       => 'The file could not be deleted: %s',
