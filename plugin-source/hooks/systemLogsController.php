@@ -201,12 +201,7 @@ class hook193 extends _HOOK_CLASS_
 				}
 
 				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );
-				if ( $deleted )
-				{
-					\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
-				}
-
-				\IPS\Output::i()->redirect( $redirectUrl );
+				\IPS\Output::i()->redirect( $redirectUrl, $deleted ? 'deleted' : '' );
 			}
 
 			\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' );
@@ -287,12 +282,7 @@ class hook193 extends _HOOK_CLASS_
 				}
 
 				$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );
-				if ( $deleted )
-				{
-					\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
-				}
-
-				\IPS\Output::i()->redirect( $redirectUrl );
+				\IPS\Output::i()->redirect( $redirectUrl, $deleted ? 'deleted' : '' );
 			}
 
 			\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' );
