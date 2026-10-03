@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin name="X Log Cleaner" version_long="10007" version_human="1.0.7" author="XENNTEC UG" website="https://xenntec.net" update_check="https://xenntec-ug.github.io/ips4-public/updates/xlogcleaner.json"><hooks><hook type="C" class="\IPS\core\modules\admin\support\systemLogs" filename="systemLogsController"><![CDATA[//<?php
+<plugin name="X Log Cleaner" version_long="10008" version_human="1.0.8" author="XENNTEC UG" website="https://xenntec.net" update_check="https://xenntec-ug.github.io/ips4-public/updates/xlogcleaner.json"><hooks><hook type="C" class="\IPS\core\modules\admin\support\systemLogs" filename="systemLogsController"><![CDATA[//<?php
 /**
  * @brief		Hook on \IPS\core\modules\admin\support\systemLogs
  * @author		XENNTEC UG
@@ -280,12 +280,7 @@ class hook193 extends _HOOK_CLASS_
 					}
 	
 					$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );
-					if ( $deleted )
-					{
-						\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
-					}
-	
-					\IPS\Output::i()->redirect( $redirectUrl );
+					\IPS\Output::i()->redirect( $redirectUrl, $deleted ? 'deleted' : '' );
 				}
 	
 				\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_system_logs' );
@@ -385,12 +380,7 @@ class hook193 extends _HOOK_CLASS_
 					}
 	
 					$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=systemLogs' );
-					if ( $deleted )
-					{
-						\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
-					}
-	
-					\IPS\Output::i()->redirect( $redirectUrl );
+					\IPS\Output::i()->redirect( $redirectUrl, $deleted ? 'deleted' : '' );
 				}
 	
 				\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_file_logs' );
@@ -624,12 +614,7 @@ class hook476 extends _HOOK_CLASS_
 					}
 	
 					$redirectUrl = \IPS\Http\Url::internal( 'app=core&module=support&controller=errorLogs' );
-					if ( $deleted )
-					{
-						\IPS\Output::i()->redirect( $redirectUrl, 'deleted' );
-					}
-	
-					\IPS\Output::i()->redirect( $redirectUrl );
+					\IPS\Output::i()->redirect( $redirectUrl, $deleted ? 'deleted' : '' );
 				}
 	
 				\IPS\Output::i()->title  = \IPS\Member::loggedIn()->language()->addToStack( 'xlc_delete_error_logs' );
@@ -665,4 +650,4 @@ class hook476 extends _HOOK_CLASS_
 		}
 	}
 }
-]]></hook></hooks><htmlFiles/><cssFiles/><jsFiles/><resourcesFiles/><lang><word key="xlc_confirm_delete" js="0">Confirm Delete</word><word key="xlc_must_confirm_delete" js="0">You must check the confirmation box to proceed with deletion.</word><word key="xlc_delete_system_logs" js="0">Delete System Logs</word><word key="xlc_delete_all_toggle" js="0">Delete all?</word><word key="xlc_delete_or_categories" js="0">Or delete only logs in specific categories:</word><word key="xlc_categories" js="0">Categories</word><word key="xlc_category_none" js="0">(no category)</word><word key="xlc_delete_file_logs" js="0">Delete File Logs</word><word key="xlc_confirm_delete_files" js="0">Confirming this action will delete ALL files in the logs folder.</word><word key="xlc_file_could_not_delete" js="0">The file could not be deleted: %s</word><word key="xlc_acplog__all_system_logs" js="0">Deleted all system logs</word><word key="xlc_acplog__system_categories" js="0">Deleted system logs in categories: %s</word><word key="xlc_acplog__all_file_logs" js="0">Deleted all system file logs</word><word key="xlc_delete_error_logs" js="0">Delete Error Logs</word><word key="xlc_delete_all_errors_toggle" js="0">Delete all?</word><word key="xlc_delete_or_levels" js="0">Or delete only errors at specific levels:</word><word key="xlc_error_levels" js="0">Error Levels</word><word key="xlc_error_level_1" js="0">Level 1, informational</word><word key="xlc_error_level_2" js="0">Level 2, client error</word><word key="xlc_error_level_3" js="0">Level 3, permission or access</word><word key="xlc_error_level_4" js="0">Level 4, server error</word><word key="xlc_error_level_5" js="0">Level 5, critical</word><word key="xlc_acplog__all_error_logs" js="0">Deleted all error logs</word><word key="xlc_acplog__error_levels" js="0">Deleted error logs at levels: %s</word></lang><versions><version long="10000" human="1.0.0"/><version long="10001" human="1.0.1"/><version long="10002" human="1.0.2"/><version long="10003" human="1.0.3"/><version long="10004" human="1.0.4"/><version long="10005" human="1.0.5"/><version long="10006" human="1.0.6"/><version long="10007" human="1.0.7"/></versions></plugin>
+]]></hook></hooks><htmlFiles/><cssFiles/><jsFiles/><resourcesFiles/><lang><word key="xlc_confirm_delete" js="0">Confirm Delete</word><word key="xlc_must_confirm_delete" js="0">You must check the confirmation box to proceed with deletion.</word><word key="xlc_delete_system_logs" js="0">Delete System Logs</word><word key="xlc_delete_all_toggle" js="0">Delete all?</word><word key="xlc_delete_or_categories" js="0">Or delete only logs in specific categories:</word><word key="xlc_categories" js="0">Categories</word><word key="xlc_category_none" js="0">(no category)</word><word key="xlc_delete_file_logs" js="0">Delete File Logs</word><word key="xlc_confirm_delete_files" js="0">Confirming this action will delete ALL files in the logs folder.</word><word key="xlc_file_could_not_delete" js="0">The file could not be deleted: %s</word><word key="xlc_acplog__all_system_logs" js="0">Deleted all system logs</word><word key="xlc_acplog__system_categories" js="0">Deleted system logs in categories: %s</word><word key="xlc_acplog__all_file_logs" js="0">Deleted all system file logs</word><word key="xlc_delete_error_logs" js="0">Delete Error Logs</word><word key="xlc_delete_all_errors_toggle" js="0">Delete all?</word><word key="xlc_delete_or_levels" js="0">Or delete only errors at specific levels:</word><word key="xlc_error_levels" js="0">Error Levels</word><word key="xlc_error_level_1" js="0">Level 1, informational</word><word key="xlc_error_level_2" js="0">Level 2, client error</word><word key="xlc_error_level_3" js="0">Level 3, permission or access</word><word key="xlc_error_level_4" js="0">Level 4, server error</word><word key="xlc_error_level_5" js="0">Level 5, critical</word><word key="xlc_acplog__all_error_logs" js="0">Deleted all error logs</word><word key="xlc_acplog__error_levels" js="0">Deleted error logs at levels: %s</word></lang><versions><version long="10000" human="1.0.0"/><version long="10001" human="1.0.1"/><version long="10002" human="1.0.2"/><version long="10003" human="1.0.3"/><version long="10004" human="1.0.4"/><version long="10005" human="1.0.5"/><version long="10006" human="1.0.6"/><version long="10007" human="1.0.7"/><version long="10008" human="1.0.8"/></versions></plugin>
