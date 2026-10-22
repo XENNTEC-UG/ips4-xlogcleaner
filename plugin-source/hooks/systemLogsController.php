@@ -50,9 +50,9 @@ class hook193 extends _HOOK_CLASS_
 		}
 		catch ( \Error | \RuntimeException $e )
 		{
-			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			if ( \method_exists( parent::class, __FUNCTION__ ) )
 			{
-				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				return \call_user_func_array( array( parent::class, __FUNCTION__ ), \func_get_args() );
 			}
 			else
 			{
@@ -91,9 +91,9 @@ class hook193 extends _HOOK_CLASS_
 		}
 		catch ( \Error | \RuntimeException $e )
 		{
-			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			if ( \method_exists( parent::class, __FUNCTION__ ) )
 			{
-				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				return \call_user_func_array( array( parent::class, __FUNCTION__ ), \func_get_args() );
 			}
 			else
 			{
@@ -209,9 +209,9 @@ class hook193 extends _HOOK_CLASS_
 		}
 		catch ( \Error | \RuntimeException $e )
 		{
-			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			if ( \method_exists( parent::class, __FUNCTION__ ) )
 			{
-				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				return \call_user_func_array( array( parent::class, __FUNCTION__ ), \func_get_args() );
 			}
 			else
 			{
@@ -290,9 +290,9 @@ class hook193 extends _HOOK_CLASS_
 		}
 		catch ( \Error | \RuntimeException $e )
 		{
-			if ( method_exists( get_parent_class(), __FUNCTION__ ) )
+			if ( \method_exists( parent::class, __FUNCTION__ ) )
 			{
-				return \call_user_func_array( 'parent::' . __FUNCTION__, \func_get_args() );
+				return \call_user_func_array( array( parent::class, __FUNCTION__ ), \func_get_args() );
 			}
 			else
 			{

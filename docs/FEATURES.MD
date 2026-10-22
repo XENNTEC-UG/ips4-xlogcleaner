@@ -6,10 +6,10 @@
 
 | Field | Value |
 |---|---|
-| Version | 1.0.8 |
-| Long Version | 10008 |
+| Version | 1.0.9 |
+| Long Version | 10009 |
 | Type | Plugin |
-| Compatibility | IPS4 4.7+ / PHP 8.1+ |
+| Compatibility | IPS4 4.7+ / PHP 8.2+ |
 
 ## Feature Pillars
 
